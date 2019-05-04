@@ -8,39 +8,14 @@ bottom_thickness = 5;
 step_size = 30;
 top_thickness = 5;
 top_radius = 30;
+top_cone_height = 6;
+
+lamp_support_height = (bottom_length/2-main_radius)*1.20;
+
 
 bottom_y_base = height+top_thickness-bottom_thickness;
 
-translate([-plate_length/2, 0, 0]) {
-    plate();
-}
-cylinder(h=height+top_thickness, r=main_radius);
-translate([-bottom_length/2+bottom_width/2, 0, bottom_y_base]) {
-    cylinder(h=bottom_thickness, d=bottom_width);
-}
-translate([bottom_length/2-bottom_width/2, 0, bottom_y_base]) {
-    cylinder(h=bottom_thickness, d=bottom_width);
-}
-
-translate([-bottom_length/2+bottom_width/2, -bottom_width/2, bottom_y_base] ) {
-    cube([bottom_length-bottom_width, bottom_width, bottom_thickness]);
-}
-
-
-for(i=[height-step_size:-step_size:bottom_thickness+step_size/2]) {
-    translate([0, -bottom_length/2+bottom_width/2, i]) {
-        cylinder(h=bottom_thickness, d=bottom_width);
-    }
-    translate([0, bottom_length/2-bottom_width/2, i]) {
-        cylinder(h=bottom_thickness, d=bottom_width);
-    }
-
-    translate([-bottom_width/2, -bottom_length/2+bottom_width/2, i] ) {
-        cube([bottom_width, bottom_length-bottom_width, bottom_thickness]);
-    }
-}
-
-plate_thickness = 4;
+plate_thickness = top_cone_height;
 plate_roundness = 3;
 plate_length = bottom_length + 10;
 plate_width = bottom_length + 2;
@@ -49,25 +24,48 @@ plate_addition = 1;
 translate([top_radius+20, 0, 0]) {
     difference() {
         plate();
-
-    union () {
-    translate([plate_length/2, 0, -plate_addition]) {
-        hull() {
-            translate([-bottom_length/2-plate_addition+bottom_width/2, 0, 0]) {
-                cylinder(h=plate_thickness+plate_addition*2, d=bottom_width+plate_addition*2);
-            }
-            translate([bottom_length/2+plate_addition-bottom_width/2, 0, 0]) {
-                cylinder(h=plate_thickness+plate_addition*2, d=bottom_width+plate_addition*2);
-            }
+        translate([plate_length/2, 0, 0]) {
+            top_cone(0.1);
         }
-        cylinder(h=plate_thickness+plate_addition*2, r=main_radius+plate_addition);
+    }
+}
 
+cylinder(h=height, r=main_radius);
+for(i=[0:step_size:height-step_size]) {
+    translate([0, 0, i]) {
+        lamp_support();
     }
-    }
+}
+translate([0, 0, height]) {
+    top_cone();
+}
+
+
+module top_cone(padding=0) {
+    translate([0, 0, -padding]) {
+        cylinder(h=top_cone_height+padding*2, r1=main_radius+padding, r2=main_radius*1.4+padding);
     }
 }
 
 
+module lamp_support() {
+    hull() {
+        translate([-main_radius+bottom_width/2, 0, 0]) {
+            cylinder(h=lamp_support_height, d=bottom_width);
+        }
+        translate([main_radius-bottom_width/2, 0, 0]) {
+            cylinder(h=lamp_support_height, d=bottom_width);
+        }
+        translate([0, 0, lamp_support_height]) {
+            translate([-bottom_length/2+bottom_width/2, 0, 0]) {
+                cylinder(h=bottom_thickness, d=bottom_width);
+            }
+            translate([bottom_length/2-bottom_width/2, 0, 0]) {
+                cylinder(h=bottom_thickness, d=bottom_width);
+            }
+        }
+    }
+}
 
 module plate() {
     hull() {
@@ -85,41 +83,3 @@ module plate() {
         }
     }
 }
-
-module flag_part() {
-
-  hull() {
-    translate([radius, radius, radius]) {
-      sphere(r=radius);
-    }
-
-    translate([radius, width-radius, radius]) {
-      sphere(r=radius);
-    }
-
-    translate([radius, width-radius, height-radius]) {
-      sphere(r=radius);
-    }
-
-    translate([radius, radius, height-radius]) {
-      sphere(r=radius);
-    }
-
-    translate([length-radius, radius, radius]) {
-      sphere(r=radius);
-    }
-
-    translate([length-radius, width-radius, radius]) {
-      sphere(r=radius);
-    }
-
-    translate([length-radius, width-radius, height-radius]) {
-      sphere(r=radius);
-    }
-
-    translate([length-radius, radius, height-radius]) {
-      sphere(r=radius);
-    }
-  }
-}
-
